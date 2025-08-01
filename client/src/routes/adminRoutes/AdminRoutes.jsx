@@ -2,8 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import AdminLogin from "../../pages/admin/AdminLogin";
 import News from "../../pages/admin/News";
 import AdminProtectedRoute from "../../components/AdminProtectedRoute";
-import CreatePost from "../../pages/admin/createPost";
 import EditArticle from "../../pages/admin/EditArticle";
+import AdminCreatePost from "../../pages/admin/CreatePost";
 
 const AdminRoutes = () => {
   return (
@@ -33,7 +33,7 @@ const AdminRoutes = () => {
         path="create-post"
         element={
           <AdminProtectedRoute>
-           <CreatePost/>
+           <AdminCreatePost/>
           </AdminProtectedRoute>
         }
       />
