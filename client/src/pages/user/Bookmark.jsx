@@ -16,6 +16,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import Sidebar from "../../components/SideBar";
 import BottomNavbar from "../../components/BottomNavbar";
+import { baseURL } from "../../api/axios";
 
 const Bookmark = () => {
   const { user } = useContext(AuthContext);
@@ -33,7 +34,7 @@ const Bookmark = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `http://localhost:5000/api/bookmarks/${userId}`
+          `${baseURL}/${userId}`
         );
         const fetched = res.data;
         setBookmarks(fetched);
@@ -56,7 +57,7 @@ const Bookmark = () => {
 
   const handleDelete = async (bookmarkId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/bookmarks/${bookmarkId}`);
+      await axios.delete(`${baseURL}/api/bookmarks/${bookmarkId}`);
       setBookmarks((prev) => prev.filter((b) => b._id !== bookmarkId));
       if (selectedBookmark?._id === bookmarkId) {
         setSelectedBookmark(null);

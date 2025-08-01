@@ -5,6 +5,7 @@ import NewsCard from "../../components/NewsCard";
 import BottomNavbar from "../../components/BottomNavbar";
 import Sidebar from "../../components/SideBar";
 import { getUserProfile } from "../../api/auth";
+import { baseURL } from "../../api/axios";
 
 const categories = [
   "All",
@@ -57,7 +58,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/articles");
+        const res = await axios.get(`${baseURL}/api/articles`);
         setArticles(res.data);
         console.log(res.data);
       } catch (err) {

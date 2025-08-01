@@ -2,6 +2,7 @@ import { Heart } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { baseURL } from "../api/axios";
 
 const NewsCard = ({
   id, // This is the articleId
@@ -25,7 +26,7 @@ const NewsCard = ({
     }
 
     try {
-      await axios.post("http://localhost:5000/api/bookmarks", {
+      await axios.post(`${baseURL}/api/bookmarks`, {
         userId,
         articleId: id,
       });

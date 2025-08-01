@@ -1,8 +1,9 @@
 // src/api/admin.js
 import axios from "axios";
+import { baseURL } from "./axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/admin",
+  baseURL,
   withCredentials: true,
 });
 

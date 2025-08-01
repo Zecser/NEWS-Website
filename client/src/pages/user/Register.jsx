@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from "@react-oauth/google";
 import {registerUser} from "../../api/auth"
+import { baseURL } from "../../api/axios";
 
 
 function Register() {
@@ -47,7 +48,7 @@ function Register() {
       console.log("Google User Info:", userInfo);
 
       // ✅ Send email, name, picture to backend
-      const res = await axios.post("http://localhost:5000/api/google-login", {
+      const res = await axios.post(`${baseURL}/api/google-login`, {
         email: userInfo.email,
         name: userInfo.name,
         picture: userInfo.picture,

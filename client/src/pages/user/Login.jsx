@@ -6,6 +6,7 @@ import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from "@react-oauth/google";
 import { loginUser, getUserProfile } from "../../api/auth";
 import { AuthContext } from "../../context/AuthContext";
+import { baseURL } from "../../api/axios";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -39,7 +40,7 @@ function Login() {
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await axios.post("http://localhost:5000/api/google-login", {
+        const res = await axios.post(`${baseURL}/api/google-login`, {
           credential: tokenResponse.credential,
         });
 
