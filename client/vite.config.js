@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { baseURL } from "./src/api/axios";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: baseURL,
+        target: "https://news-website-4xw6.onrender.com",
       },
     },
   }

@@ -1,6 +1,7 @@
 import axios from "axios";
 
-export const baseURL = import.meta.env.VITE_API_URL;
+export const baseURL = import.meta.env.VITE_API_URL || 'https://news-website-4xw6.onrender.com';
+
 
 const API = axios.create({
   baseURL,
