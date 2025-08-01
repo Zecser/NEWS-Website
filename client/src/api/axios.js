@@ -4,7 +4,7 @@ export const baseURL = import.meta.env.VITE_API_URL || 'https://news-website-4xw
 
 
 const API = axios.create({
-  baseURL,
+  baseURL:`${baseURL}/api`,
   withCredentials: true,
 });
 
