@@ -1,0 +1,330 @@
+import { generateToken } from "../config/generateToken.js";
+import Article from "../models/articleModel.js";
+import Bookmark from "../models/bookmarkModel.js";
+import User from "../models/userModel.js";
+import bcrypt from "bcrypt";
+import { OAuth2Client } from "google-auth-library";
+import jwt from "jsonwebtoken";
+
+const client = new OAuth2Client(process.env.CLIENT_ID);
+
+//user login and register
+export const userRegister = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).send("All fields are required");
+    }
+    console.log(name, email, password);
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).send("User already exists");
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ name, email, password: hashedPassword });
+    await newUser.save();
+    res.status(201).json({ message: "Registration successful!" });
+  } catch (error) {
+    console.log("error in registerUser", error.message);
+    res.status(500).send(error.message);
+  }
+};
+
+export const userLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log(email, password);
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+    generateToken(res, user, "User logged in successfully");
+  } catch (error) {
+    console.log("error in login", error.message);
+    res.status(500).json({ message: "login server error" });
+  }
+};
+
+export const googleLogin = async (req, res) => {
+  try {
+    const { email, name, picture } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        password: email + process.env.JWT_SECRET, // random hash-based password
+        profilePic: picture,
+        googleAuth: true,
+      });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.status(200).json({ message: "Google login successful", token, user });
+  } catch (error) {
+    console.error("Google login error:", error);
+    res.status(500).json({ message: "googleLogin server error" });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res
+      .status(200)
+      .clearCookie("token")
+      .json({ message: "User logged out successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "logout server error" });
+  }
+};
+
+//articles controller:
+
+export const getArticles = async (req, res) => {
+  try {
+    const { category, country, state, district, date, search, tag } = req.query;
+
+    // Build dynamic query object
+    let query = {};
+
+    if (category) query.category = category;
+    if (country) query.country = country;
+    if (state) query.state = state;
+    if (district) query.district = district;
+    if (tag) query.tag = tag;
+    if (date) {
+      // Match articles created on the specific date (ignoring time)
+      const start = new Date(date);
+      const end = new Date(date);
+      end.setDate(end.getDate() + 1);
+      query.createdAt = { $gte: start, $lt: end };
+    }
+
+    // Search by title, caption, or textarea (case-insensitive)
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { caption: { $regex: search, $options: "i" } },
+        { textarea: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Fetch latest articles first
+    const articles = await Article.find(query).sort({ createdAt: -1 });
+
+    res.status(200).json(articles);
+  } catch (error) {
+    console.error("Error fetching articles:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getSingleArticle = async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    res.status(200).json(article);
+  } catch (error) {
+    console.log("error in getSingleArticle", error.message);
+    res.status(500).send(error.message);
+  }
+};
+
+//bookmark controller:
+
+export const getBookmarks = async (req, res) => {
+  try {
+    const bookmarks = await Bookmark.find({ userId: req.params.id }).populate(
+      "articleId"
+    );
+    if (!bookmarks) {
+      return res.status(404).json({ message: "No bookmarks found" });
+    }
+    res.status(200).json(bookmarks);
+  } catch (error) {
+    console.log("error in getBookmarks", error.message);
+    res.status(500).send(error.message);
+  }
+};
+
+export const addBookmark = async (req, res) => {
+  const { userId, articleId } = req.body;
+
+  if (!userId || !articleId) {
+    return res.status(400).json({ success: false, message: "Missing fields" });
+  }
+
+  try {
+    // Check if bookmark already exists
+    const existing = await Bookmark.findOne({ userId, articleId });
+    if (existing) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Already bookmarked" });
+    }
+
+    const newBookmark = await Bookmark.create({ userId, articleId });
+
+    res.status(201).json({ success: true, bookmark: newBookmark });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteBookmark = async (req, res) => {
+  try {
+    const deleted = await Bookmark.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Bookmark not found" });
+    }
+    res.status(200).json({ success: true, message: "Bookmark deleted" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const addcreatepost = async (req, res) => {
+  const { title, category, country, state, district, textarea, tag, caption } =
+    req.body;
+
+  let newsImg = "";
+
+  if (req.file?.filename) {
+    newsImg = req.file.filename;
+  }
+  if (!title || !category || !country || !state || !district || !caption) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  console.log(
+    title,
+    category,
+    country,
+    state,
+    district,
+    tag,
+    caption,
+    textarea
+  );
+
+  try {
+    const existingProject = await Article.findOne({ title });
+    if (existingProject) {
+      return res.status(406).json("News item already exists");
+    }
+
+    const newProject = new Article({
+      title,
+      category,
+      country,
+      state,
+      district,
+      tag,
+      caption,
+      textarea,
+      imageUrl: newsImg,
+    });
+
+    await newProject.save();
+    return res.status(200).json(newProject);
+  } catch (err) {
+    console.error("Error saving project:", err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+//update user
+// export const editUserLogin = async (req, res) => {
+//   console.log("inside edit user");
+
+//   const userId = req.userId; // assuming set by jwtMiddleware
+//   const { name, email, phone } = req.body;
+
+//   // Cloudinary gives us the image URL in req.file.path
+//   const profileImage = req.file?.path;
+
+//   try {
+//     const updatedFields = { name, email, phone };
+//     if (profileImage) updatedFields.profileImage = profileImage;
+
+//     const updateUser = await User.findByIdAndUpdate(
+//       { _id: userId },
+//       updatedFields,
+//       { new: true }
+//     );
+
+//     if (!updateUser) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     res.status(200).json(updateUser);
+//   } catch (err) {
+//     console.error("Error updating user:", err);
+//     res.status(500).json({ message: "Server error", error: err.message });
+//   }
+// };
+
+export const getUserInfo = async (req, res) => {
+  try {
+    const user = await User.findById(req.id).select("-password");
+    if (!req.id) {
+      return res.status(404).json({ message: "User not found, id too " });
+    }
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch user" });
+  }
+};
+
+export const editUser = async (req, res) => {
+  const userId = req.params.id;
+  const { name, email, phone } = req.body;
+
+  try {
+    const updatedFields = { name, email, phone };
+
+    // If a new image is uploaded
+    if (req.file && req.file.filename) {
+      updatedFields.imageUrl = req.file.path; // Only public_id
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedFields, {
+      new: true,
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    console.error("Error updating user:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
