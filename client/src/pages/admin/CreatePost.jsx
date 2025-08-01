@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import Sidebar from "../../components/Sidebar";
 import { createArticle } from "../../api/admin";
 import { toast } from "react-toastify";
+import Sidebar from "../../components/SideBar";
 
 function AdminCreatePost({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
   const [title, setTitle] = useState("");
