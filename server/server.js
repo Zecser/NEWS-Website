@@ -1,12 +1,11 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import connectDB from './config/database.js';
-import userRoutes from './routes/userRoutes.js';
-import adminRoutes from './routes/adminRoutes.js';
-import cookieParser from 'cookie-parser';
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import connectDB from "./config/database.js";
+import userRoutes from "./routes/userRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import cookieParser from "cookie-parser";
 import path from "path";
-
 
 // Load environment variables
 dotenv.config();
@@ -21,22 +20,23 @@ app.use(cookieParser());
 // Use URL-encoded middleware
 app.use(express.urlencoded({ extended: true }));
 
-
 // Use CORS middleware
-app.use(cors({
-  origin:["http://localhost:5173",process.env.CLIENT_URL],
-  credentials:true
-
-}));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", process.env.CLIENT_URL],
+    credentials: true,
+  })
+);
 
 app.use("/uploads", express.static(path.join(process.cwd(), "./uploads")));
 
-
+app.get("/", (_req, res) => {
+  res.send("API is running."); // remove it on production
+});
 // Routes
-app.use('/api/', userRoutes);
+app.use("/api/", userRoutes);
 
-app.use('/api/admin', adminRoutes);
-
+app.use("/api/admin", adminRoutes);
 
 // Start server
 const PORT = process.env.PORT;
@@ -44,4 +44,3 @@ app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   connectDB();
 });
-
