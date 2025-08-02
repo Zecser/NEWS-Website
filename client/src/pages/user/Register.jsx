@@ -6,6 +6,7 @@ import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from "@react-oauth/google";
 import { registerUser } from "../../api/auth";
 import { Eye, EyeOff } from "lucide-react";
+import { baseURL } from "../../api/axios";
 
 function Register() {
   const navigate = useNavigate();
@@ -71,7 +72,7 @@ function Register() {
         );
 
         // ✅ Send email, name, picture to backend
-        const res = await axios.post("http://localhost:5000/api/google-login", {
+        const res = await axios.post(`${baseURL}/google-login`, {
           email: userInfo.email,
           name: userInfo.name,
           picture: userInfo.picture,

@@ -5,6 +5,7 @@ import NewsCard from "../../components/NewsCard";
 import Accordion from "../../components/Accordion";
 import BottomNavbar from "../../components/BottomNavbar";
 import axios from "axios";
+import { baseURL } from "../../api/axios";
 
 const categories = ["Latest", "Sports", "Politics", "Business", "Health"];
 
@@ -28,7 +29,7 @@ function SearchPage() {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/articles");
+        const res = await axios.get(`${baseURL}/articles`);
         setArticles(res.data);
       } catch (err) {
         console.error("Error fetching articles:", err);
