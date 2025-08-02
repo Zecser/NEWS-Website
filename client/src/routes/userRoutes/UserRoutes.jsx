@@ -7,6 +7,7 @@ import Login from "../../pages/user/Login";
 import Register from "../../pages/user/Register";
 import Edituser from "../../pages/user/EditUser";
 import ProtectedRoute from "../../components/ProtectedRoute";
+import SearchPage from "../../pages/user/SearchPage";
 
 const UserRoutes = () => {
   return (
@@ -42,7 +43,18 @@ const UserRoutes = () => {
           </ProtectedRoute>
         }
       />
+
+       <Route
+        path="/search"
+        element={
+          <ProtectedRoute>
+            <SearchPage/>
+          </ProtectedRoute>
+        }
+      />
     </Routes>
+
+    
   );
 };
 

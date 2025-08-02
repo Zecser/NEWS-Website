@@ -34,7 +34,7 @@ const Bookmark = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `${baseURL}/${userId}`
+          `${baseURL}/bookmarks/${userId}`
         );
         const fetched = res.data;
         setBookmarks(fetched);
@@ -57,7 +57,7 @@ const Bookmark = () => {
 
   const handleDelete = async (bookmarkId) => {
     try {
-      await axios.delete(`${baseURL}/api/bookmarks/${bookmarkId}`);
+      await axios.delete(`${baseURL}/bookmarks/${bookmarkId}`);
       setBookmarks((prev) => prev.filter((b) => b._id !== bookmarkId));
       if (selectedBookmark?._id === bookmarkId) {
         setSelectedBookmark(null);

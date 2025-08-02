@@ -4,9 +4,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from "@react-oauth/google";
-import {registerUser} from "../../api/auth"
-import { baseURL } from "../../api/axios";
-
+import { registerUser } from "../../api/auth";
+import { Eye, EyeOff } from "lucide-react";
 
 function Register() {
   const navigate = useNavigate();
@@ -14,11 +13,38 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
+    if (!name || !email || !password) {
+      toast.error("Name, email and password are required");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return;
+    }
+
+    if (!email.includes("@")) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    if (!email.endsWith(".com")) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
 
     try {
       const { data } = await registerUser({ name, email, password });
@@ -36,38 +62,34 @@ function Register() {
   };
 
   const googleLogin = useGoogleLogin({
-  onSuccess: async (tokenResponse) => {
-    console.log("Google Token Response:", tokenResponse);
+    onSuccess: async (tokenResponse) => {
 
-    try {
-      // ✅ Get user info from Google using access_token
-      const { data: userInfo } = await axios.get(
-        `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokenResponse.access_token}`
-      );
+      try {
+        // ✅ Get user info from Google using access_token
+        const { data: userInfo } = await axios.get(
+          `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokenResponse.access_token}`
+        );
 
-      console.log("Google User Info:", userInfo);
+        // ✅ Send email, name, picture to backend
+        const res = await axios.post("http://localhost:5000/api/google-login", {
+          email: userInfo.email,
+          name: userInfo.name,
+          picture: userInfo.picture,
+        });
 
-      // ✅ Send email, name, picture to backend
-      const res = await axios.post(`${baseURL}/api/google-login`, {
-        email: userInfo.email,
-        name: userInfo.name,
-        picture: userInfo.picture,
-      });
-
-      localStorage.setItem("token", res.data.token);
-      toast.success("Registered/Login successful!");
-      navigate("/home");
-    } catch (err) {
+        localStorage.setItem("token", res.data.token);
+        toast.success("Registered/Login successful!");
+        navigate("/home");
+      } catch (err) {
+        toast.error("Google login failed!");
+        console.error("Google login failed:", err);
+      }
+    },
+    onError: () => {
       toast.error("Google login failed!");
-      console.error("Google login failed:", err);
-    }
-  },
-  onError: () => {
-    toast.error("Google login failed!");
-    console.log("Google Login Failed");
-  },
-});
-
+      console.log("Google Login Failed");
+    },
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -101,21 +123,28 @@ function Register() {
                 className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
             </div>
-            <div>
+            <div className="relative">
               <label className="text-gray-700 text-sm">
                 Enter your password
               </label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 pr-10"
               />
+              <div
+                className="absolute right-3 bottom-4 cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </div>
               <p className="text-right text-blue-600 text-sm mt-1 cursor-pointer hover:underline">
                 Forgot Password?
               </p>
             </div>
+
             <button
               type="submit"
               className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -193,26 +222,51 @@ function Register() {
                 />
               </div>
 
-              <div>
-                <label className="text-gray-700 text-sm">
-                  Enter your password
-                </label>
+              <div className="relative">
+                <label className="text-gray-700 text-sm">Enter password</label>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  placeholder=" Password"
+                  className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 pr-10"
                 />
-                <p className="text-right text-blue-600 text-sm mt-1 cursor-pointer hover:underline">
-                  Forgot Password?
-                </p>
+                <div
+                  className="absolute right-3 bottom-4 cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </div>
               </div>
+
+              <div className="relative">
+                <label className="text-gray-700 text-sm">
+                  Confirm your password
+                </label>
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm Password"
+                  className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 pr-10"
+                />
+                <div
+                  className="absolute right-3 bottom-4 cursor-pointer"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
+                </div>
+              </div>
+
               <button
                 type="submit"
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Login
+                {loading ? "Registering..." : "Register"}
               </button>
             </form>
             <div className="flex items-center justify-center mt-4">

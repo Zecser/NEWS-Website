@@ -16,7 +16,6 @@ export const AdminAuthProvider = ({ children }) => {
     const fetchAdmin = async () => {
       try {
         const { data } = await getAdminProfile();
-        console.log(data);
         setAdmin(data.admin);
         setLoading(false);
       

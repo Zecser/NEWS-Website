@@ -31,7 +31,6 @@ const AdminLogin = () => {
     try {
       await loginAdmin({email, password});
       const { data } = await getAdminProfile();
-      console.log(data);
       setSuccess(true);
       setAdmin(data.admin);
       toast.success("Login successful!");

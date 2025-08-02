@@ -7,15 +7,15 @@ const API = axios.create({
   withCredentials: true,
 });
 
-export const loginAdmin = (credentials) => API.post("/login", credentials);
+export const loginAdmin = (credentials) => API.post("admin/login", credentials);
 
-export const logoutAdmin = () => API.post("/logout");
+export const logoutAdmin = () => API.post("admin/logout");
 
-export const getAdminProfile = () => API.get("/profile", { withCredentials: true }); // Optional if you implement this on backend
+export const getAdminProfile = () => API.get("/admin/profile", { withCredentials: true }); // Optional if you implement this on backend
 
-export const getAllArticles = (data) => API.get("/articles", data);
+export const getAllArticles = (data) => API.get("/admin/articles", data);
 
-export const deleteArticle = (id) => API.delete(`/articles/${id}`);
+export const deleteArticle = (id) => API.delete(`/admin/articles/${id}`);
 
 export const createArticle = (data) => {
   const formData = new FormData();
@@ -26,12 +26,12 @@ export const createArticle = (data) => {
     }
   }
 
-  return API.post("/articles", formData);
+  return API.post("/admin/articles", formData);
 };
 
 
-export const getArticleById = (id) => API.get(`/articles/${id}`);
+export const getArticleById = (id) => API.get(`admin/articles/${id}`);
 
-export const updateArticle = (id, data) => API.put(`/articles/${id}`, data);
+export const updateArticle = (id, data) => API.put(`admin/articles/${id}`, data);
 
 export default API;

@@ -19,7 +19,6 @@ function AdminCreatePost({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-       console.log(title, category, caption, country, state, district, language, likes, status, image);
       await createArticle({
         title,
         category,

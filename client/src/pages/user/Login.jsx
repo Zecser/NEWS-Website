@@ -6,17 +6,18 @@ import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from "@react-oauth/google";
 import { loginUser, getUserProfile } from "../../api/auth";
 import { AuthContext } from "../../context/AuthContext";
-import { baseURL } from "../../api/axios";
+import { Eye, EyeOff } from "lucide-react";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
-  const { setUser } = useContext(AuthContext);    
+  const { setUser } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,7 +27,6 @@ function Login() {
     try {
       await loginUser({ email, password });
       const { data } = await getUserProfile();
-      console.log(data);
       setUser(data); // 🔥 update context immediately
       toast.success(data?.message || "Login successful!");
       setIsSuccess(true); // ✅ Trigger navigation in useEffect
@@ -40,7 +40,7 @@ function Login() {
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await axios.post(`${baseURL}/api/google-login`, {
+        const res = await axios.post("http://localhost:5000/api/google-login", {
           credential: tokenResponse.credential,
         });
 
@@ -59,7 +59,7 @@ function Login() {
     },
     onError: () => {
       toast.error("Google login failed!");
-      console.log("Google Login Failed");
+      // console.log("Google Login Failed");
     },
   });
 
@@ -92,21 +92,25 @@ function Login() {
                 className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
             </div>
-            <div>
+            <div className="relative">
               <label className="text-gray-700 text-sm">
                 Enter your password
               </label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 pr-10"
               />
-              <p className="text-right text-blue-600 text-sm mt-1 cursor-pointer hover:underline">
-                Forgot Password?
-              </p>
+              <div
+                className="absolute right-3 bottom-3 cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </div>
             </div>
+
             <button
               type="submit"
               className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -173,21 +177,25 @@ function Login() {
                   className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
                 />
               </div>
-              <div>
+              <div className="relative">
                 <label className="text-gray-700 text-sm">
                   Enter your password
                 </label>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
-                  className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 pr-10"
                 />
-                <p className="text-right text-blue-600 text-sm mt-1 cursor-pointer hover:underline">
-                  Forgot Password?
-                </p>
+                <div
+                  className="absolute right-3 bottom-3 cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </div>
               </div>
+
               <button
                 type="submit"
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

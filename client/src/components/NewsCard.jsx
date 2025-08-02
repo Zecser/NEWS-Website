@@ -26,7 +26,7 @@ const NewsCard = ({
     }
 
     try {
-      await axios.post(`${baseURL}/api/bookmarks`, {
+      await axios.post(`${baseURL}/bookmarks`, {
         userId,
         articleId: id,
       });

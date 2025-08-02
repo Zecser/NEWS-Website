@@ -58,9 +58,8 @@ const HomePage = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await axios.get(`${baseURL}/api/articles`);
-        setArticles(res.data);
-        console.log(res.data);
+        const res = await axios.get(`${baseURL}/articles`);
+        setArticles(res.data);;
       } catch (err) {
         console.error("Error fetching articles:", err);
         setError("Failed to load articles");
@@ -88,7 +87,6 @@ const HomePage = () => {
     alert(`Read More Clicked! Article ID: ${id}`);
   };
 
-  console.log(userId);
 
   const handleNavigate = (tab) => setActiveTab(tab);
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
