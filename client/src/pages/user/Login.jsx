@@ -31,6 +31,7 @@ function Login() {
       toast.success(data?.message || "Login successful!");
       setIsSuccess(true); // ✅ Trigger navigation in useEffect
     } catch (err) {
+      console.log("err",err?.response?.data)
       toast.error(err.response?.data?.message || "Something went wrong!");
     } finally {
       setLoading(false);
