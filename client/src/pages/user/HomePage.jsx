@@ -102,8 +102,8 @@ const HomePage = () => {
 
   return (
     <div
-      className={`min-h-screen flex flex-col lg:flex-row ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+      className={`min-h-screen flex flex-col lg:flex-row w-full ${
+        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900 "
       }`}
     >
       {/* ✅ Left Sidebar (Desktop Only) */}
@@ -118,7 +118,7 @@ const HomePage = () => {
       </div>
 
       {/* ✅ Main Content */}
-      <div className="flex-1 flex flex-col w-full lg:w-auto">
+      <div className="flex flex-col overflow-hidden">
         {/* ✅ Header */}
         <header
           className={`lg:hidden flex items-center justify-between px-4 sm:px-6 py-3 shadow-sm ${
@@ -148,10 +148,10 @@ const HomePage = () => {
 
         {/* ✅ Categories */}
         <section className="mb-4 mt-4">
-          <h2 className="font-bold text-lg sm:text-xl lg:text-2xl mb-3 px-4 sm:px-6 lg:px-8">
+          <h2 className="font-bold text-lg sm:text-xl lg:text-2xl mb-3 px-4 sm:px-6 lg:px-8 ">
             Categories
           </h2>
-          <div className="flex gap-2 sm:gap-3 overflow-x-auto px-4 sm:px-6 lg:px-8 py-2 scrollbar-hide">
+          <div className="flex gap-2 sm:gap-3  overflow-x-scroll px-4 sm:px-6 lg:px-8 py-2 scrollbar-hide">
             {categories.map((cat) => (
               <button
                 key={cat}
