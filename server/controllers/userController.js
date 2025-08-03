@@ -5,6 +5,9 @@ import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
+import {sendResetEmail} from "../utils/nodeMailer.js"
+import dotenv from "dotenv";
+dotenv.config();
 
 const client = new OAuth2Client(process.env.CLIENT_ID);
 
@@ -58,9 +61,11 @@ export const googleLogin = async (req, res) => {
   try {
     const { email, name, picture } = req.body;
 
-    if (!email) {
+    if (!email || !name || !picture) {
       return res.status(400).json({ message: "Email is required" });
     }
+
+    console.log(email, name, picture);
 
     let user = await User.findOne({ email });
 
@@ -69,18 +74,12 @@ export const googleLogin = async (req, res) => {
         name,
         email,
         password: email + process.env.JWT_SECRET, // random hash-based password
-        profilePic: picture,
+        imageUrl: picture,
         googleAuth: true,
       });
     }
 
-    const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res.status(200).json({ message: "Google login successful", token, user });
+    const token = generateToken(res, user, "Google login successful");
   } catch (error) {
     console.error("Google login error:", error);
     res.status(500).json({ message: "googleLogin server error" });
@@ -255,36 +254,6 @@ export const addcreatepost = async (req, res) => {
   }
 };
 
-//update user
-// export const editUserLogin = async (req, res) => {
-//   console.log("inside edit user");
-
-//   const userId = req.userId; // assuming set by jwtMiddleware
-//   const { name, email, phone } = req.body;
-
-//   // Cloudinary gives us the image URL in req.file.path
-//   const profileImage = req.file?.path;
-
-//   try {
-//     const updatedFields = { name, email, phone };
-//     if (profileImage) updatedFields.profileImage = profileImage;
-
-//     const updateUser = await User.findByIdAndUpdate(
-//       { _id: userId },
-//       updatedFields,
-//       { new: true }
-//     );
-
-//     if (!updateUser) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     res.status(200).json(updateUser);
-//   } catch (err) {
-//     console.error("Error updating user:", err);
-//     res.status(500).json({ message: "Server error", error: err.message });
-//   }
-// };
 
 export const getUserInfo = async (req, res) => {
   try {
@@ -305,6 +274,7 @@ export const getUserInfo = async (req, res) => {
 export const editUser = async (req, res) => {
   const userId = req.params.id;
   const { name, email, phone } = req.body;
+  console.log(name, email, phone);
 
   try {
     const updatedFields = { name, email, phone };
@@ -328,3 +298,52 @@ export const editUser = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "15m",
+    });
+
+    console.log(token);
+    console.log(process.env.FRONTEND_URL);
+
+     const link = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+
+    await sendResetEmail(email, link);
+
+     res.json({ success: true, message: "Reset email sent successfully.", token } );
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id); // Use "id", not "userId", as that's what you signed in token
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.password = newPassword; // This will be hashed automatically
+    await user.save(); // Triggers pre-save hook
+
+    res.json({ success: true, message: "Password reset successful." });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ success: false, message: "Invalid or expired token" });
+  }
+};
+

@@ -6,6 +6,7 @@ import BottomNavbar from "../../components/BottomNavbar";
 import Sidebar from "../../components/SideBar";
 import { getUserProfile } from "../../api/auth";
 import { baseURL } from "../../api/axios";
+import Loader from "../../components/Loader";
 
 const categories = [
   "All",
@@ -97,7 +98,7 @@ const HomePage = () => {
       ? articles
       : articles.filter((article) => article.category === activeCategory);
 
-  if (loading) return <p className="p-4">Loading articles...</p>;
+  if (loading) return <Loader isDarkMode = {isDarkMode} size={10} />;
   if (error) return <p className="p-4 text-red-500">{error}</p>;
 
   return (
@@ -189,6 +190,7 @@ const HomePage = () => {
                   author={article.tag || "Unknown Author"}
                   date={new Date(article.createdAt).toLocaleDateString()}
                   description={article.caption}
+                  content={article.content}
                   likes={article.likes || 0}
                   onReadMore={() => handleReadMore(article._id)}
                   isDarkMode={isDarkMode}

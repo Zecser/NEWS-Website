@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "../../components/SideBar";
+import BottomNavbar from "../../components/BottomNavbar";
 import { getArticleById, updateArticle } from "../../api/admin";
 import { toast } from "react-toastify";
 
-function EditArticle({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
+function EditArticle({ admin, userId, handleLogout }) {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -16,8 +17,12 @@ function EditArticle({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
   const [district, setDistrict] = useState("");
   const [language, setLanguage] = useState("");
   const [status, setStatus] = useState("");
-  const [image, setImage] = useState(null); // for upload
-  const [existingImage, setExistingImage] = useState(""); // for preview
+  const [image, setImage] = useState(null);
+  const [existingImage, setExistingImage] = useState("");
+
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -31,7 +36,7 @@ function EditArticle({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
         setDistrict(data.district);
         setLanguage(data.language);
         setStatus(data.status);
-        setExistingImage(data.imageUrl); // if you have one
+        setExistingImage(data.imageUrl);
       } catch (err) {
         console.error("Failed to fetch article:", err);
         toast.error("Unable to load article data.");
@@ -47,7 +52,6 @@ function EditArticle({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       await updateArticle(id, {
         title,
@@ -94,18 +98,21 @@ function EditArticle({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
         isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
       }`}
     >
-      <Sidebar
-        isDarkMode={isDarkMode}
-        toggleDarkMode={toggleDarkMode}
-        activeTab="Create Post"
-        userId={userId}
-        isAdmin={true}
-        handleLogout={handleLogout}
-      />
+      {/* Sidebar for desktop */}
+      <div className="hidden md:block">
+        <Sidebar
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          activeTab="create-post"
+          userId={userId}
+          isAdmin={true}
+          handleLogout={handleLogout}
+        />
+      </div>
 
-      <main className="flex-1 px-6 py-8 ml-10">
+      <main className="flex-1 px-4  pt-6 pb-24 md:px-6 md:py-8 md:ml-10">
         <h2
-          className={`text-2xl font-bold mb-6 ${
+          className={`text-2xl font-bold mb-6 ml-10 ${
             isDarkMode ? "text-orange-400" : "text-orange-500"
           }`}
         >
@@ -114,11 +121,10 @@ function EditArticle({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
 
         <form
           onSubmit={handleSubmit}
-          className={`p-6 rounded-xl shadow-lg max-w-3xl space-y-5 ${
+          className={`p-6 rounded-xl shadow-lg max-w-3xl space-y-5 ml-10 ${
             isDarkMode ? "bg-gray-800" : "bg-white"
           }`}
         >
-          {/* Inputs (same as create) */}
           <div>
             <label className={labelClass}>Title</label>
             <input
@@ -218,19 +224,11 @@ function EditArticle({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
               onChange={handleImageChange}
             />
             {image ? (
-              <p
-                className={`mt-2 text-sm ${
-                  isDarkMode ? "text-gray-300" : "text-gray-600"
-                }`}
-              >
+              <p className={`mt-2 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                 Selected: <span className="font-medium">{image.name}</span>
               </p>
             ) : existingImage ? (
-              <img
-                src={existingImage}
-                alt="Current Thumbnail"
-                className="mt-3 h-24 rounded"
-              />
+              <img src={existingImage} alt="Current Thumbnail" className="mt-3 h-24 rounded" />
             ) : null}
           </div>
 
@@ -244,6 +242,17 @@ function EditArticle({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
           </div>
         </form>
       </main>
+
+      {/* Bottom Navbar - visible only on mobile */}
+      <div className="md:hidden">
+        <BottomNavbar
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          isAdmin={true}
+          activeTab="home"
+          userId={userId}
+        />
+      </div>
     </div>
   );
 }

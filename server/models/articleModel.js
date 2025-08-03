@@ -24,10 +24,10 @@ const articleSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    // content: {
-    //   type: String,
-    //   required: true,
-    // },
+    content: {
+      type: String,
+      // required: true,
+    },
     imageUrl: {
       type: String,
       // required: true, // If every article must have an image

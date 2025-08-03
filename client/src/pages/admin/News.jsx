@@ -6,6 +6,7 @@ import NewsCard from "../../components/NewsCard";
 import { FaTrashAlt, FaExclamationTriangle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import BottomNavbar from "../../components/BottomNavbar";
 
 const News = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -30,7 +31,6 @@ const News = () => {
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
-  // Fetch articles
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -65,7 +65,6 @@ const News = () => {
     }
   };
 
-  // Filtered articles based on search
   const filteredArticles = articles.filter((article) => {
     const lowerSearch = search.toLowerCase();
     return (
@@ -76,22 +75,24 @@ const News = () => {
 
   return (
     <div
-      className={`flex h-screen ${
+      className={`flex flex-col md:flex-row h-screen ${
         isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
       }`}
     >
-      {/* Sidebar */}
-      <Sidebar
-        isDarkMode={isDarkMode}
-        toggleDarkMode={toggleDarkMode}
-        activeTab={activeTab}
-        userId={admin?._id}
-        isAdmin={!!admin}
-        handleLogout={handleLogout}
-      />
+      {/* Sidebar for Desktop */}
+      <div className="hidden md:block">
+        <Sidebar
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          activeTab={activeTab}
+          userId={admin?._id}
+          isAdmin={!!admin}
+          handleLogout={handleLogout}
+        />
+      </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto relative">
+      <div className="flex-1 p-6 pb-24 overflow-y-auto relative">
         <h2 className="text-2xl font-bold mb-4">News Articles</h2>
 
         <input
@@ -111,7 +112,10 @@ const News = () => {
         ) : filteredArticles.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredArticles.map((article) => (
-              <div key={article._id} className="relative group">
+              <div
+                key={article._id}
+                className="relative  dark:bg-gray-900 rounded-xl shadow-md p-4"
+              >
                 <NewsCard
                   id={article._id}
                   userId={admin?._id}
@@ -120,21 +124,28 @@ const News = () => {
                     "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1470&q=80"
                   }
                   title={article.title}
-                  author={article.tag || "Unknown Author"}
+                  author={article.tag || "Unknown"}
                   date={new Date(article.createdAt).toLocaleDateString()}
                   description={article.caption}
+                  content={article.content}
                   likes={article.likes || 0}
                   isDarkMode={isDarkMode}
                 />
+
+                {/* Delete Button */}
                 <button
                   onClick={() => handleDeleteClick(article._id)}
-                  className="absolute top-2 right-2 text-red-600 hover:text-red-800 transition-opacity opacity-0 group-hover:opacity-100"
+                  className="absolute top-3 right-3 bg-red-600 text-white p-2 rounded-full shadow hover:bg-red-700 transition duration-200"
+                  title="Delete"
                 >
-                  <FaTrashAlt />
+                  <FaTrashAlt size={16} />
                 </button>
+
+                {/* Edit Button */}
                 <button
-                  onClick={() => navigate(`/admin/edit-article/${article._id}`)}
-                  className="absolute top-2 right-10 text-blue-600 hover:text-blue-800 transition-opacity opacity-0 group-hover:opacity-100"
+                  onClick={() => navigate(`/admin/edit-article/${article._id}`) }
+                  className="absolute top-3 right-12 bg-blue-600 text-white p-2 rounded-full shadow hover:bg-blue-700 transition duration-200"
+                  title="Edit"
                 >
                   ✏️
                 </button>
@@ -145,7 +156,7 @@ const News = () => {
           <p className="text-center text-gray-500">No articles found.</p>
         )}
 
-        {/* Delete Modal */}
+        {/* Delete Confirmation Modal */}
         {showDeleteModal && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
             <div
@@ -175,6 +186,18 @@ const News = () => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Bottom Navbar for Mobile */}
+      <div className="block md:hidden fixed bottom-0 left-0 right-0 z-50">
+        <BottomNavbar
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          handleLogout={handleLogout}
+          isAdmin={!!admin}
+          userId={admin?._id}
+          activeTab={activeTab}
+        />
       </div>
     </div>
   );

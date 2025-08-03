@@ -8,6 +8,8 @@ import Register from "../../pages/user/Register";
 import Edituser from "../../pages/user/EditUser";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import SearchPage from "../../pages/user/SearchPage";
+import ForgotPassword from "../../pages/user/ForgotPassword";
+import ResetPassword from "../../pages/user/ResetPassword";
 
 const UserRoutes = () => {
   return (
@@ -16,7 +18,10 @@ const UserRoutes = () => {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/home" element={<HomePage />} /> {/* ✅ Guest can access */}
+      <Route path="/home" element={<HomePage />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />  
+      <Route path="/reset-password/:token" element={<ResetPassword />} />  
+
 
       {/* Protected Routes (requires login) */}
       <Route

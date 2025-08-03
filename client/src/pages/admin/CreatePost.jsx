@@ -3,8 +3,9 @@ import { Plus } from "lucide-react";
 import { createArticle } from "../../api/admin";
 import { toast } from "react-toastify";
 import Sidebar from "../../components/SideBar";
+import BottomNavbar from "../../components/BottomNavbar";
 
-function AdminCreatePost({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
+function AdminCreatePost({ userId, handleLogout }) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [caption, setCaption] = useState("");
@@ -15,6 +16,11 @@ function AdminCreatePost({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
   const [likes, setLikes] = useState(0);
   const [status, setStatus] = useState("");
   const [image, setImage] = useState(null);
+  const [content, setContent] = useState("");
+
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,9 +36,9 @@ function AdminCreatePost({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
         likes,
         status,
         image,
+        content,
       });
 
-     
       toast.success("Post created successfully!");
       // Optionally reset form here
     } catch (error) {
@@ -71,20 +77,24 @@ function AdminCreatePost({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
 
   return (
     <div
-      className={`flex min-h-screen ${
+      className={`min-h-screen flex flex-col md:flex-row ${
         isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
       }`}
     >
-      <Sidebar
-        isDarkMode={isDarkMode}
-        toggleDarkMode={toggleDarkMode}
-        activeTab="create-post"
-        userId={userId}
-        isAdmin={true}
-        handleLogout={handleLogout}
-      />
+      {/* Sidebar - visible on md+ */}
+      <div className="hidden md:block">
+        <Sidebar
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          activeTab="create-post"
+          userId={userId}
+          isAdmin={true}
+          handleLogout={handleLogout}
+        />
+      </div>
 
-      <main className="flex-1 px-6 py-8 ml-10">
+      {/* Main content */}
+      <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">
         <h2
           className={`text-2xl font-bold mb-6 flex items-center gap-2 ${
             isDarkMode ? "text-orange-400" : "text-orange-500"
@@ -95,34 +105,31 @@ function AdminCreatePost({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
 
         <form
           onSubmit={handleSubmit}
-          className={`p-6 rounded-xl shadow-lg max-w-3xl space-y-5 ${
+          className={`p-6 rounded-xl shadow-lg max-w-3xl mx-auto space-y-5 ${
             isDarkMode ? "bg-gray-800" : "bg-white"
           }`}
         >
-          {/* Inputs */}
-          <div>
-            <label className={labelClass}>Title</label>
-            <input
-              type="text"
-              className={inputClass}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              placeholder="Enter title"
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Category</label>
-            <input
-              type="text"
-              className={inputClass}
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              required
-              placeholder="Enter category"
-            />
-          </div>
+          {/* Form fields */}
+          {[
+            { label: "Title", value: title, setter: setTitle },
+            { label: "Category", value: category, setter: setCategory },
+            { label: "Country", value: country, setter: setCountry },
+            { label: "State", value: state, setter: setState },
+            { label: "District", value: district, setter: setDistrict },
+            { label: "Language", value: language, setter: setLanguage },
+          ].map(({ label, value, setter }) => (
+            <div key={label}>
+              <label className={labelClass}>{label}</label>
+              <input
+                type="text"
+                className={inputClass}
+                value={value}
+                onChange={(e) => setter(e.target.value)}
+                required
+                placeholder={`Enter ${label}`}
+              />
+            </div>
+          ))}
 
           <div>
             <label className={labelClass}>Caption</label>
@@ -136,50 +143,13 @@ function AdminCreatePost({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
           </div>
 
           <div>
-            <label className={labelClass}>Country</label>
-            <input
-              type="text"
-              className={inputClass}
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
+            <label className={labelClass}>Content</label>
+            <textarea
+              className={inputClass + " resize-none h-40"}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
               required
-              placeholder="Enter Country"
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>State</label>
-            <input
-              type="text"
-              className={inputClass}
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-              required
-              placeholder="Enter State"
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>District</label>
-            <input
-              type="text"
-              className={inputClass}
-              value={district}
-              onChange={(e) => setDistrict(e.target.value)}
-              required
-              placeholder="Enter District"
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Language</label>
-            <input
-              type="text"
-              className={inputClass}
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              required
-              placeholder="Enter Language"
+              placeholder="Write the full content here..."
             />
           </div>
 
@@ -220,13 +190,25 @@ function AdminCreatePost({ isDarkMode, toggleDarkMode, userId, handleLogout }) {
           <div>
             <button
               type="submit"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md font-medium transition-colors"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md font-medium transition-colors w-full"
             >
               Publish Post
             </button>
           </div>
         </form>
       </main>
+
+      {/* BottomNavbar - visible on small screens only */}
+      <div className="fixed bottom-0 left-0 w-full block md:hidden z-50">
+        <BottomNavbar
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          activeTab="create-post"
+          userId={userId}
+          isAdmin={true}
+          handleLogout={handleLogout}
+        />
+      </div>
     </div>
   );
 }

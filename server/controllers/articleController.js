@@ -32,6 +32,7 @@ export const createArticle = async (req, res) => {
       district,
       language,
       status,
+      content
     } = req.body;
 
 
@@ -51,6 +52,7 @@ export const createArticle = async (req, res) => {
       district,
       language,
       status,
+      content
     });
 
     await newArticle.save();

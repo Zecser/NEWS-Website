@@ -64,7 +64,6 @@ function Register() {
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-
       try {
         // ✅ Get user info from Google using access_token
         const { data: userInfo } = await axios.get(
@@ -72,13 +71,15 @@ function Register() {
         );
 
         // ✅ Send email, name, picture to backend
-        const res = await axios.post(`${baseURL}/google-login`, {
+         await axios.post(`${baseURL}/google-login`, {
           email: userInfo.email,
           name: userInfo.name,
           picture: userInfo.picture,
+        },{
+          withCredentials: true
         });
 
-        localStorage.setItem("token", res.data.token);
+        
         toast.success("Registered/Login successful!");
         navigate("/home");
       } catch (err) {
@@ -141,9 +142,31 @@ function Register() {
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </div>
-              <p className="text-right text-blue-600 text-sm mt-1 cursor-pointer hover:underline">
+              {/* <p className="text-right text-blue-600 text-sm mt-1 cursor-pointer hover:underline">
                 Forgot Password?
-              </p>
+              </p> */}
+            </div>
+
+            <div className="relative">
+              <label className="text-gray-700 text-sm">
+                Confirm your password
+              </label>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Password"
+                className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 pr-10"
+              />
+              <div
+                className="absolute right-3 bottom-4 cursor-pointer"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </div>
+              {/* <p className="text-right text-blue-600 text-sm mt-1 cursor-pointer hover:underline">
+                Forgot Password?
+              </p> */}
             </div>
 
             <button

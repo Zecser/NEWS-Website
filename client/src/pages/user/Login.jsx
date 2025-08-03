@@ -32,37 +32,50 @@ function Login() {
       toast.success(data?.message || "Login successful!");
       setIsSuccess(true); // ✅ Trigger navigation in useEffect
     } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong!");
+      console.error(err);
+      toast.error(err?.data?.message || "Something went wrong!");
     } finally {
       setLoading(false);
     }
   };
 
   const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        const res = await axios.post(`${baseURL}/google-login`, {
-          credential: tokenResponse.credential,
-        });
+  onSuccess: async (tokenResponse) => {
+    try {
+      // Get Google user info using access_token
+      const { data: userInfo } = await axios.get(
+        `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokenResponse.access_token}`
+      );
 
-        localStorage.setItem("token", res.data.token);
+      // Send that info to your backend
+      await axios.post(
+        `${baseURL}/google-login`,
+        {
+          email: userInfo.email,
+          name: userInfo.name,
+          picture: userInfo.picture,
+        },
+        {
+          withCredentials: true, // if backend uses cookies
+        }
+      );
 
-        // ✅ Get the user's info and update context
-        const { data } = await getUserProfile();
-        setUser(data);
+      const { data } = await getUserProfile();
+      setUser(data);
 
-        toast.success("Logged in successfully!");
-        setIsSuccess(true);
-      } catch (err) {
-        toast.error("Google login failed!");
-        console.error("Google login failed:", err);
-      }
-    },
-    onError: () => {
+      toast.success("Logged in successfully!");
+      setIsSuccess(true);
+    } catch (err) {
       toast.error("Google login failed!");
-      // console.log("Google Login Failed");
-    },
-  });
+      console.error("Google login failed:", err?.response?.data || err);
+    }
+  },
+  onError: () => {
+    toast.error("Google login failed!");
+    console.log("Google Login Failed");
+  },
+});
+
 
   // ✅ Trigger navigation in useEffect
   useEffect(() => {
@@ -110,6 +123,16 @@ function Login() {
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </div>
+            </div>
+            <div>
+              <p>
+                <span
+                  className="text-orange-500 font-semibold cursor-pointer"
+                  onClick={() => navigate("/forgot-password")}
+                >
+                  Forgot Password?
+                </span>
+              </p>
             </div>
 
             <button
@@ -195,6 +218,16 @@ function Login() {
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </div>
+              </div>
+              <div>
+                <p>
+                  <span
+                    className="text-orange-500 font-semibold cursor-pointer"
+                    onClick={() => navigate("/forgot-password")}
+                  >
+                    Forgot Password?
+                  </span>
+                </p>
               </div>
 
               <button

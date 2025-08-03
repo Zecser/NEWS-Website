@@ -26,6 +26,7 @@ const Edituser = () => {
     const fetchUserData = async () => {
       try {
         const { data: user } = await getUserProfile();
+        console.log(user);
         setFormData({
           name: user.name || "",
           email: user.email || "",

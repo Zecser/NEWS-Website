@@ -208,6 +208,7 @@ function SearchPage() {
               author={article.tag || "Unknown Author"}
               date={new Date(article.createdAt).toLocaleDateString()}
               description={article.caption}
+              content={article.content}
               likes={article.likes || 0}
               isDarkMode={isDarkMode}
               onReadMore={() => {}}
