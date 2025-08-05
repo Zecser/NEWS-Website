@@ -31,11 +31,19 @@ export const adminLogin = async (req, res) => {
   }
 };
 
-export const adminLogout = async (req, res) => {
-  res
-    .status(200)
-    .clearCookie("token")
-    .json({ message: "Admin logged out successfully" });
+export const logout = async (req, res) => {
+  try {
+    res.cookie("token", "", {
+      httpOnly: true,
+      secure: true,       // required in production with HTTPS
+      sameSite: "none",   // must match original cookie
+      expires: new Date(0), // expire immediately
+    });
+      res.json({ message: "User logged out successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "logout server error" });
+  }
 };
 
 export const getAdminProfile = async (req, res) => {

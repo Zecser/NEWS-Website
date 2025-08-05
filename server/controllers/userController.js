@@ -88,10 +88,13 @@ export const googleLogin = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    res
-      .status(200)
-      .clearCookie("token")
-      .json({ message: "User logged out successfully" });
+    res.cookie("token", "", {
+      httpOnly: true,
+      secure: true,       // required in production with HTTPS
+      sameSite: "none",   // must match original cookie
+      expires: new Date(0), // expire immediately
+    });
+      res.json({ message: "User logged out successfully" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "logout server error" });
@@ -346,4 +349,3 @@ export const resetPassword = async (req, res) => {
     res.status(400).json({ success: false, message: "Invalid or expired token" });
   }
 };
-
