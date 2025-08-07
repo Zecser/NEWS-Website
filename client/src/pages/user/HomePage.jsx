@@ -60,7 +60,7 @@ const HomePage = () => {
     const fetchArticles = async () => {
       try {
         const res = await axios.get(`${baseURL}/articles`);
-        setArticles(res.data);;
+        setArticles(res.data);
       } catch (err) {
         console.error("Error fetching articles:", err);
         setError("Failed to load articles");
@@ -88,7 +88,6 @@ const HomePage = () => {
     alert(`Read More Clicked! Article ID: ${id}`);
   };
 
-
   const handleNavigate = (tab) => setActiveTab(tab);
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
@@ -98,7 +97,7 @@ const HomePage = () => {
       ? articles
       : articles.filter((article) => article.category === activeCategory);
 
-  if (loading) return <Loader isDarkMode = {isDarkMode} size={10} />;
+  if (loading) return <Loader isDarkMode={isDarkMode} size={10} />;
   if (error) return <p className="p-4 text-red-500">{error}</p>;
 
   return (
@@ -108,7 +107,7 @@ const HomePage = () => {
       }`}
     >
       {/* ✅ Left Sidebar (Desktop Only) */}
-      <div className="hidden lg:block">
+      <div className="hidden w-200 lg:block h-screen sticky top-0 ">
         <Sidebar
           isDarkMode={isDarkMode}
           activeTab={activeTab}
@@ -117,8 +116,7 @@ const HomePage = () => {
           userId={userId}
         />
       </div>
-
-      {/* ✅ Main Content */}
+      {/* ✅ Main Content */}A
       <div className="flex flex-col overflow-hidden">
         {/* ✅ Header */}
         <header
@@ -182,10 +180,11 @@ const HomePage = () => {
                   key={article._id}
                   id={article._id}
                   userId={userId}
-                  image={
-                    article.imageUrl ||
-                    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
-                  }
+                  media={[article?.imageUrl, article?.videoUrl]}
+                  // image={
+                  //   article.imageUrl ||
+                  //   "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                  // }
                   title={article.title}
                   author={article.tag || "Unknown Author"}
                   date={new Date(article.createdAt).toLocaleDateString()}
@@ -208,7 +207,6 @@ const HomePage = () => {
             activeTab={activeTab}
             onNavigate={handleNavigate}
             userId={userId}
-            
           />
         </div>
       </div>

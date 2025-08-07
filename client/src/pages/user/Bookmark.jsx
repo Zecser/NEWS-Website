@@ -167,13 +167,6 @@ const Bookmark = () => {
 
             <p className="mb-4">{selectedArticle.content}</p>
 
-            <div className="flex gap-4 text-gray-600 dark:text-gray-400">
-              <Share2 className="cursor-pointer" />
-              <Heart className="cursor-pointer" />
-              <MessageCircle className="cursor-pointer" />
-              <BookmarkIcon className="cursor-pointer" />
-              <MoreHorizontal className="cursor-pointer" />
-            </div>
           </div>
         ) : (
           <div className="text-center text-gray-500">

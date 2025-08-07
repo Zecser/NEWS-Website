@@ -18,6 +18,28 @@ const articleSchema = new mongoose.Schema(
         "International",
         "Entertainment",
         "Technology",
+        "Environment",
+        "Education",
+        "Crime",
+        "Weather",
+        "Lifestyle",
+        "Travel",
+        "Food",
+        "Fashion",
+        "Finance",
+        "Real Estate",
+        "Science",
+        "Crime",
+        "Weather",
+        "Lifestyle",
+        "Travel",
+        "Food",
+        "Fashion",
+        "Finance",
+        "Real Estate",
+        "Science",
+        "Crime",
+        "Military",
       ], // You can add more categories or make it dynamic
     },
     caption: {
@@ -30,8 +52,7 @@ const articleSchema = new mongoose.Schema(
     },
     imageUrl: {
       type: String,
-      // required: true, // If every article must have an image
-      default: "https://plus.unsplash.com/premium_photo-1688561384438-bfa9273e2c00?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bmV3c3xlbnwwfHwwfHx8MA%3D%3D",
+      required: true,
     },
     country: {
       type: String,
@@ -62,11 +83,13 @@ const articleSchema = new mongoose.Schema(
       enum: ["draft", "published"],
       default: "published",
     },
-    // createdBy: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "User", // Reference to Admin who posted it
-    //   required: true,
-    // },
+    videoUrl: {
+      type: String,
+    },
+    locality: {
+      type: String,
+      // required: true
+    },
   },
   { timestamps: true } // Adds createdAt & updatedAt fields automatically
 );

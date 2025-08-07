@@ -1,8 +1,5 @@
-import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -10,12 +7,18 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
+// Dynamic folder based on fieldname
+export const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: "articles", // Cloudinary folder
-    allowed_formats: ["jpg", "png", "jpeg"],
+  params: (req, file) => {
+    let folder = 'default';
+    if (file.fieldname === 'image') folder = 'images';
+    else if (file.fieldname === 'video') folder = 'videos';
+
+    return {
+      folder,
+      resource_type: file.mimetype.startsWith('video/') ? 'video' : 'image',
+      allowed_formats: ['jpg', 'png', 'jpeg', 'mp4', 'webm'],
+    };
   },
 });
-
-export { cloudinary, storage };

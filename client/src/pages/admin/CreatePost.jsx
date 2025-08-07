@@ -4,6 +4,7 @@ import { createArticle } from "../../api/admin";
 import { toast } from "react-toastify";
 import Sidebar from "../../components/SideBar";
 import BottomNavbar from "../../components/BottomNavbar";
+import { useNavigate } from "react-router-dom";
 
 function AdminCreatePost({ userId, handleLogout }) {
   const [title, setTitle] = useState("");
@@ -17,8 +18,12 @@ function AdminCreatePost({ userId, handleLogout }) {
   const [status, setStatus] = useState("");
   const [image, setImage] = useState(null);
   const [content, setContent] = useState("");
+  const [video, setVideo] = useState(null);
+  const [locality, setLocality] = useState("");
 
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const navigate = useNavigate();
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
@@ -37,10 +42,12 @@ function AdminCreatePost({ userId, handleLogout }) {
         status,
         image,
         content,
+        video,
+        locality,
       });
 
       toast.success("Post created successfully!");
-      // Optionally reset form here
+      navigate("/admin/news");
     } catch (error) {
       console.error("Error creating post:", error);
       toast.error("Failed to create post");
@@ -53,6 +60,10 @@ function AdminCreatePost({ userId, handleLogout }) {
 
   const handleChange = (e) => {
     setStatus(e.target.value);
+  };
+
+  const handleVideoChange = (e) => {
+    setVideo(e.target.files[0]);
   };
 
   const inputClass =
@@ -117,6 +128,7 @@ function AdminCreatePost({ userId, handleLogout }) {
             { label: "State", value: state, setter: setState },
             { label: "District", value: district, setter: setDistrict },
             { label: "Language", value: language, setter: setLanguage },
+            { label: "Locality", value: locality, setter: setLocality },
           ].map(({ label, value, setter }) => (
             <div key={label}>
               <label className={labelClass}>{label}</label>
@@ -183,6 +195,25 @@ function AdminCreatePost({ userId, handleLogout }) {
                 }`}
               >
                 Selected: <span className="font-medium">{image.name}</span>
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className={labelClass}>Upload Video (optional)</label>
+            <input
+              type="file"
+              accept="video/*"
+              className={fileInputClass}
+              onChange={handleVideoChange}
+            />
+            {video && (
+              <p
+                className={`mt-2 text-sm ${
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                Selected: <span className="font-medium">{video.name}</span>
               </p>
             )}
           </div>

@@ -73,7 +73,8 @@ function LandingPage() {
               Welcome Back
             </h2>
             <p className="text-gray-700 text-lg">
-              Log in to stay updated with the latest news, personalized just for you.
+              Log in to stay updated with the latest news, personalized just for
+              you.
             </p>
           </div>
         </div>
@@ -81,7 +82,9 @@ function LandingPage() {
         {/* Right Buttons Section */}
         <div className="md:w-1/2 flex items-center justify-center bg-gray-50 p-8">
           <div className="w-full max-w-sm bg-white shadow-lg rounded-2xl p-8 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Get Started</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">
+              Get Started
+            </h2>
 
             <div className="space-y-4">
               <button

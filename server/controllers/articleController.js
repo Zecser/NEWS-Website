@@ -1,4 +1,5 @@
 import Article from "../models/articleModel.js";
+import Notification from "../models/notificationModel.js";
 
 export const getAllArticles = async (req, res) => {
   try {
@@ -21,8 +22,7 @@ export const getArticleById = async (req, res) => {
 
 export const createArticle = async (req, res) => {
   try {
-    console.log("inside create article");
-    console.log(req.body);
+    
     const {
       title,
       caption,
@@ -32,7 +32,8 @@ export const createArticle = async (req, res) => {
       district,
       language,
       status,
-      content
+      content,
+      locality
     } = req.body;
 
 
@@ -40,7 +41,8 @@ export const createArticle = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    const imageUrl = req.file?.path; // Cloudinary gives `path` as the image URL
+    const imageUrl =  req?.files?.image?.[0].path; // Cloudinary gives `path` as the image URL
+    const videoUrl = req?.files?.video?.[0]?.path || req.video?.path || null;
 
     const newArticle = new Article({
       title,
@@ -52,7 +54,15 @@ export const createArticle = async (req, res) => {
       district,
       language,
       status,
-      content
+      content,
+      videoUrl,
+      locality
+    });
+
+    await Notification.create({
+      message: `📰 New article published: ${newArticle.title}`,
+      // userId: req.user._id,
+      articleId: newArticle._id,
     });
 
     await newArticle.save();
@@ -67,9 +77,44 @@ export const createArticle = async (req, res) => {
 
 export const updateArticle = async (req, res) => {
   try {
-    const updated = await Article.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+   
+    const userId = req.params.id;
+    const {
+      title,
+      caption,
+      category,
+      country,
+      state,
+      district,
+      language,
+      status,
+      content,
+      locality
+    } = req.body;
+
+    const imageUrl =  req?.files?.image?.[0].path; // Cloudinary gives `path` as the image URL
+    const videoUrl = req?.files?.video?.[0]?.path || req.video?.path || null;
+    console.log("imageUrl", imageUrl);
+    console.log("videoUrl", videoUrl);
+
+    const updated = await Article.findByIdAndUpdate(
+      userId,
+      {
+        title,
+        caption,
+        category,
+        imageUrl,
+        country,
+        state,
+        district,
+        language,
+        status,
+        content,
+        videoUrl,
+        locality
+      },
+      { new: true }
+    );
     res.json(updated);
   } catch (err) {
     res.status(500).json({ message: "Update failed" });

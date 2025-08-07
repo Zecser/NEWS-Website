@@ -1,12 +1,18 @@
-import { Heart } from "lucide-react";
+import { Bookmark as BookmarkIcon } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { baseURL } from "../api/axios";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import { Navigation } from "swiper/modules";
+import "swiper/css/navigation";
 
 const NewsCard = ({
   id,
-  image,
+  media,
   title,
   author,
   date,
@@ -19,6 +25,8 @@ const NewsCard = ({
 }) => {
   const [isBookmarked, setIsBookmarked] = useState(isInitiallyBookmarked);
   const [showFullArticle, setShowFullArticle] = useState(false);
+
+  console.log(media);
 
   const handleBookmark = async () => {
     if (!userId) {
@@ -51,11 +59,45 @@ const NewsCard = ({
         isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
       }`}
     >
-      <img src={image} alt={title} className="w-full h-60 object-cover" />
+     <Swiper
+  pagination={{ clickable: true }}
+  navigation={{
+    nextEl: `.swiper-button-next-${id}`,
+    prevEl: `.swiper-button-prev-${id}`,
+  }}
+  modules={[Pagination, Navigation]}
+  className="w-full h-60 rounded-t-lg relative"
+>
+  {media
+    .filter((item) => typeof item === "string")
+    .map((item, index) => (
+      <SwiperSlide key={index}>
+        {item.endsWith(".mp4") ? (
+          <video
+            controls
+            className="w-full h-60 object-cover"
+            src={item}
+          />
+        ) : (
+          <img
+            src={item}
+            alt={`news-media-${index}`}
+            className="w-full h-60 object-cover"
+          />
+        )}
+      </SwiperSlide>
+    ))}
+  {/* Navigation Buttons */}
+  <div className={`swiper-button-prev-${id} swiper-button-prev`}></div>
+  <div className={`swiper-button-next-${id} swiper-button-next`}></div>
+</Swiper>
+
 
       <div className="p-4 space-y-2">
         <h3 className="text-lg font-semibold">{title}</h3>
-        <p className="text-sm text-gray-400">{author} | {date}</p>
+        <p className="text-sm text-gray-400">
+          {author} | {date}
+        </p>
 
         {!showFullArticle ? (
           <>
@@ -69,9 +111,12 @@ const NewsCard = ({
                     isBookmarked ? "text-red-500" : "text-gray-400"
                   } hover:scale-110`}
                 >
-                  <Heart size={16} fill={isBookmarked ? "currentColor" : "none"} />
+                  <BookmarkIcon
+                    size={26}
+                    fill={isBookmarked ? "currentColor" : "none"}
+                  />
                 </button>
-                <span className="text-xs text-gray-400">{likes || 0}</span>
+                <span className="text-xs text-gray-400">add to bookmark</span>
               </div>
 
               <button
@@ -102,7 +147,10 @@ const NewsCard = ({
                     isBookmarked ? "text-red-500" : "text-gray-400"
                   } hover:scale-110`}
                 >
-                  <Heart size={16} fill={isBookmarked ? "currentColor" : "none"} />
+                  <BookmarkIcon
+                    size={16}
+                    fill={isBookmarked ? "currentColor" : "none"}
+                  />
                 </button>
                 <span className="text-xs text-gray-400">{likes || 0}</span>
               </div>

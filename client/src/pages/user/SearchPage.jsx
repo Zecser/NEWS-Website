@@ -47,8 +47,11 @@ function SearchPage() {
 
   const filteredArticles = articles.filter((article) => {
     const matchesQuery =
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.caption.toLowerCase().includes(searchQuery.toLowerCase());
+      article.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.caption?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.locality?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.district?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.state?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCategory = selectedCategory
       ? article.category?.toLowerCase() === selectedCategory.toLowerCase()

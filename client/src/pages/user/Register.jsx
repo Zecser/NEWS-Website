@@ -7,6 +7,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { registerUser } from "../../api/auth";
 import { Eye, EyeOff } from "lucide-react";
 import { baseURL } from "../../api/axios";
+import Loader from "../../components/Loader";
 
 function Register() {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ function Register() {
         navigate("/login");
       }, 2000);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong!");
+      toast.error(err.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -290,7 +291,7 @@ function Register() {
                 type="submit"
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                {loading ? "Registering..." : "Register"}
+                {loading ? <Loader/> : "Register"}
               </button>
             </form>
             <div className="flex items-center justify-center mt-4">

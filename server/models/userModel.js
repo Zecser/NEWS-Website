@@ -7,6 +7,10 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
+   notificationsEnabled: {
+    type: Boolean,
+    default: true, // default to true
+  },
   bookmarks: [
     {
       type: mongoose.Schema.Types.ObjectId,

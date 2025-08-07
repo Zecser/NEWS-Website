@@ -19,6 +19,8 @@ function EditArticle({ admin, userId, handleLogout }) {
   const [status, setStatus] = useState("");
   const [image, setImage] = useState(null);
   const [existingImage, setExistingImage] = useState("");
+  const [video, setVideo] = useState(null);
+  const [locality, setLocality] = useState("");
 
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -37,6 +39,8 @@ function EditArticle({ admin, userId, handleLogout }) {
         setLanguage(data.language);
         setStatus(data.status);
         setExistingImage(data.imageUrl);
+        setVideo(data.videoUrl);
+        setLocality(data.locality);
       } catch (err) {
         console.error("Failed to fetch article:", err);
         toast.error("Unable to load article data.");
@@ -49,6 +53,12 @@ function EditArticle({ admin, userId, handleLogout }) {
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
   };
+
+  const handleVideoChange = (e) => {
+    setVideo(e.target.files[0]);
+  };
+
+  console.log(image, video);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -63,7 +73,10 @@ function EditArticle({ admin, userId, handleLogout }) {
         language,
         status,
         image,
+        video,
+        locality,
       });
+      console.log(video)
       toast.success("Article updated successfully!");
       navigate("/admin/news");
     } catch (err) {
@@ -191,6 +204,17 @@ function EditArticle({ admin, userId, handleLogout }) {
           </div>
 
           <div>
+            <label className={labelClass}>Locality</label>
+            <input
+              type="text"
+              className={inputClass}
+              value={locality}
+              onChange={(e) => setLocality(e.target.value)}
+              required // optional
+            />
+          </div>
+
+          <div>
             <label className={labelClass}>Language</label>
             <input
               type="text"
@@ -224,12 +248,39 @@ function EditArticle({ admin, userId, handleLogout }) {
               onChange={handleImageChange}
             />
             {image ? (
-              <p className={`mt-2 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+              <p
+                className={`mt-2 text-sm ${
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 Selected: <span className="font-medium">{image.name}</span>
               </p>
             ) : existingImage ? (
-              <img src={existingImage} alt="Current Thumbnail" className="mt-3 h-24 rounded" />
+              <img
+                src={existingImage}
+                alt="Current Thumbnail"
+                className="mt-3 h-24 rounded"
+              />
             ) : null}
+          </div>
+
+          <div>
+            <label className={labelClass}>Upload Video (optional)</label>
+            <input
+              type="file"
+              accept="video/*"
+              className={fileInputClass}
+              onChange={handleVideoChange}
+            />
+            {video && (
+              <p
+                className={`mt-2 text-sm ${
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                Selected: <span className="font-medium">{video.name}</span>
+              </p>
+            )}
           </div>
 
           <div>

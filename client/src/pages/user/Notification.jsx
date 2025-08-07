@@ -1,36 +1,66 @@
-import { useState } from "react";
-import { ArrowLeft, Circle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, Circle, BellOff } from "lucide-react";
 import Sidebar from "../../components/SideBar";
-
-const sampleNotifications = [
-  { id: 1, title: "Breaking News: Major earthquake...", time: "1 hr", read: false },
-  { id: 2, title: "Tech Giant Unveils New...", time: "2 hr", read: false },
-  { id: 3, title: "Local Elections: Voter Turnout...", time: "2 hr", read: true },
-  { id: 4, title: "Sports Update: Championship...", time: "3 hr", read: false },
-  { id: 5, title: "Business News: Stock Market...", time: "4 hr", read: true },
-];
+import { getNotificationAPI, getUserProfile } from "../../api/auth";
 
 const Notification = () => {
-  const [notifications, setNotifications] = useState(sampleNotifications);
+  const [notifications, setNotifications] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch notifications & user status
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getNotificationAPI();
+        const user = await getUserProfile();
+
+        console.log(user);
+
+        setNotifications(res.data || []);
+        setNotificationsEnabled(user.notificationsEnabled);
+      } catch (err) {
+        console.error("Failed to fetch notifications", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setNotifications((prev) =>
+      prev.map((n) => ({ ...n, read: true }))
+    );
   };
 
   return (
-    <div className={`min-h-screen flex ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}>
-      {/* Sidebar */}
-      <Sidebar isDarkMode={isDarkMode} toggleDarkMode={() => setIsDarkMode(!isDarkMode)} activeTab="notification" />
+    <div
+      className={`min-h-screen flex ${
+        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+      }`}
+    >
+      <Sidebar
+        isDarkMode={isDarkMode}
+        toggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+        activeTab="notification"
+      />
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className={`flex items-center justify-between px-4 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+        <div
+          className={`flex items-center justify-between px-4 py-3 ${
+            isDarkMode ? "border-gray-700" : "border-gray-200"
+          }`}
+        >
           <div className="flex items-center gap-2">
-            <ArrowLeft className="w-5 h-5 cursor-pointer" />
-            <h1 className="text-lg font-semibold">Notification</h1>
+            <h1 className="text-lg font-semibold">Notifications</h1>
+            {notificationsEnabled === false && (
+              <BellOff className="w-5 h-5 text-red-500" title="Notifications Disabled" />
+            )}
           </div>
+
           <div className="flex items-center gap-3">
             <button
               onClick={markAllAsRead}
@@ -51,35 +81,47 @@ const Notification = () => {
           </div>
         </div>
 
-        {/* Notifications List */}
         <div className="flex-1 overflow-y-auto">
-          {notifications.map((n) => (
-            <div
-              key={n.id}
-              className={`flex items-center justify-between px-4 py-3 border-b ${
-                isDarkMode
-                  ? "border-gray-700 hover:bg-gray-800"
-                  : "border-gray-100 hover:bg-gray-100"
-              } transition`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 flex items-center justify-center bg-orange-500 rounded-md text-white font-bold">
-                  <span>📰</span>
+          {loading ? (
+            <p className="p-4">Loading...</p>
+          ) : notifications.length === 0 ? (
+            <p className="p-4 text-gray-500">No notifications yet.</p>
+          ) : (
+            notifications.map((n) => (
+              <div
+                key={n._id}
+                className={`flex items-center justify-between px-4 py-3 border-b ${
+                  isDarkMode
+                    ? "border-gray-700 hover:bg-gray-800"
+                    : "border-gray-100 hover:bg-gray-100"
+                } transition`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 flex items-center justify-center bg-orange-500 rounded-md text-white font-bold">
+                    📰
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium line-clamp-1">
+                      {n.message}
+                    </p>
+                    <p
+                      className={`text-xs ${
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
+                      }`}
+                    >
+                      {new Date(n.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium line-clamp-1">{n.title}</p>
-                  <p
-                    className={`text-xs ${
-                      isDarkMode ? "text-gray-400" : "text-gray-500"
-                    }`}
-                  >
-                    {n.time}
-                  </p>
-                </div>
+                {!n.read && (
+                  <Circle className="w-3 h-3 text-green-500 fill-green-500" />
+                )}
               </div>
-              {!n.read && <Circle className="w-3 h-3 text-green-500 fill-green-500" />}
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

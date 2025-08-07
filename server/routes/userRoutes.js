@@ -14,6 +14,8 @@ import {
   editUser,
   forgotPassword,
   resetPassword,
+  getNotification,
+  toggleNotifications
 } from "../controllers/userController.js";
 import userAuth from "../middlewares/userAuth.js";
 import multerMiddleware from "../middlewares/userMulter.js";
@@ -50,5 +52,10 @@ router.post("/articles", userAuth, addcreatepost);
 router.get("/bookmarks/:id", getBookmarks);
 router.post("/bookmarks", addBookmark);
 router.delete("/bookmarks/:id", deleteBookmark);
+
+//notifications
+router.get("/notifications", userAuth, getNotification);
+router.put('/toggle-notifications/:id', userAuth, toggleNotifications);
+
 
 export default router;

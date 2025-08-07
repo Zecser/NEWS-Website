@@ -1,6 +1,7 @@
 import { generateToken } from "../config/generateToken.js";
 import Article from "../models/articleModel.js";
 import Bookmark from "../models/bookmarkModel.js";
+import Notification from "../models/notificationModel.js";
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
@@ -24,8 +25,7 @@ export const userRegister = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({message:"User already exists"});
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword });
+    const newUser = new User({ name, email, password });
     await newUser.save();
     res.status(201).json({ message: "Registration successful!" });
   } catch (error) {
@@ -349,3 +349,41 @@ export const resetPassword = async (req, res) => {
     res.status(400).json({ success: false, message: "Invalid or expired token" });
   }
 };
+
+export const getNotification = async (req, res) => {
+  try {
+    const notifications = await Notification.find().sort({
+      createdAt: -1,
+    })
+    if (!notifications) {
+      return res.status(404).json({ message: "No notifications found" });
+    }
+    res.status(200).json(notifications);
+  } catch (error) {
+    console.log("error in getNotification", error.message);
+    res.status(500).send(error.message);
+  }
+};
+
+// controllers/userController.js
+export const toggleNotifications = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    console.log(req.body);
+    const { enabled } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { notificationsEnabled: enabled },
+      { new: true }
+    );
+
+    user.save();
+
+    res.status(200).json({ message: "Notifications updated", user });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update notifications" });
+  }
+};
+
+

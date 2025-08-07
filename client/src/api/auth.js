@@ -10,3 +10,7 @@ export const forgotPasswordAPI = (email) =>
 
 export const resetPasswordAPI = (token, newPassword) =>
   API.post(`/reset-password/:token`, { token, newPassword });
+
+export const getNotificationAPI = () => API.get("/notifications");
+
+export const toggleNotificationsAPI = (id, enabled) => API.put(`/toggle-notifications/${id}`, { enabled });

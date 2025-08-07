@@ -23,6 +23,7 @@ const News = () => {
   const handleLogout = async () => {
     try {
       await logoutAdmin();
+      toast.success("Admin Logged out");
       navigate("/admin/login");
     } catch (err) {
       console.error(err);
@@ -114,15 +115,35 @@ const News = () => {
             {filteredArticles.map((article) => (
               <div
                 key={article._id}
-                className="relative  dark:bg-gray-900 rounded-xl shadow-md p-4"
+                className="relative dark:bg-gray-900 rounded-xl shadow-md p-4"
               >
+                {/* Buttons at the top in front of the card */}
+                <div className="flex items-center justify-start space-x-3 mb-2">
+                  {/* Edit Button */}
+                  <button
+                    onClick={() =>
+                      navigate(`/admin/edit-article/${article._id}`)
+                    }
+                    className="bg-blue-600 text-white p-2 rounded-full shadow hover:bg-blue-700 transition duration-200"
+                    title="Edit"
+                  >
+                    ✏️
+                  </button>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDeleteClick(article._id)}
+                    className="bg-red-600 text-white p-2 rounded-full shadow hover:bg-red-700 transition duration-200"
+                    title="Delete"
+                  >
+                    <FaTrashAlt size={16} />
+                  </button>
+                </div>
+
                 <NewsCard
                   id={article._id}
                   userId={admin?._id}
-                  image={
-                    article.imageUrl ||
-                    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1470&q=80"
-                  }
+                  media={[article.imageUrl, article.videoUrl]}
                   title={article.title}
                   author={article.tag || "Unknown"}
                   date={new Date(article.createdAt).toLocaleDateString()}
@@ -131,24 +152,6 @@ const News = () => {
                   likes={article.likes || 0}
                   isDarkMode={isDarkMode}
                 />
-
-                {/* Delete Button */}
-                <button
-                  onClick={() => handleDeleteClick(article._id)}
-                  className="absolute top-3 right-3 bg-red-600 text-white p-2 rounded-full shadow hover:bg-red-700 transition duration-200"
-                  title="Delete"
-                >
-                  <FaTrashAlt size={16} />
-                </button>
-
-                {/* Edit Button */}
-                <button
-                  onClick={() => navigate(`/admin/edit-article/${article._id}`) }
-                  className="absolute top-3 right-12 bg-blue-600 text-white p-2 rounded-full shadow hover:bg-blue-700 transition duration-200"
-                  title="Edit"
-                >
-                  ✏️
-                </button>
               </div>
             ))}
           </div>

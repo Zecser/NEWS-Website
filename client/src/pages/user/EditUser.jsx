@@ -8,6 +8,8 @@ import Sidebar from "../../components/SideBar";
 import BottomNavbar from "../../components/BottomNavbar";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
+import Loader from "../../components/Loader";
+import { toggleNotificationsAPI } from "../../api/auth";
 
 const Edituser = () => {
   const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
@@ -26,13 +28,14 @@ const Edituser = () => {
     const fetchUserData = async () => {
       try {
         const { data: user } = await getUserProfile();
-        console.log(user);
         setFormData({
           name: user.name || "",
           email: user.email || "",
           phone: user.phone || "",
           imageUrl: user.imageUrl || "",
         });
+
+        setNotifications(user.notificationsEnabled);
       } catch (error) {
         toast.error(
           error.response?.data?.message || "Error fetching user data"
@@ -91,23 +94,23 @@ const Edituser = () => {
   const isDark = darkMode;
 
   useEffect(() => {
-  const fetchUserData = async () => {
-    try {
-      const { data: user } = await getUserProfile();
-      setFormData({
-        name: user.name || "",
-        email: user.email || "",
-        phone: user.phone || "",
-        imageUrl: user.imageUrl || "",
-      });
-    } catch (error) {
-      toast.error("Session expired. Please log in again.", error);
-      navigate("/login"); // Redirect to login if not authenticated
-    }
-  };
+    const fetchUserData = async () => {
+      try {
+        const { data: user } = await getUserProfile();
+        setFormData({
+          name: user.name || "",
+          email: user.email || "",
+          phone: user.phone || "",
+          imageUrl: user.imageUrl || "",
+        });
+      } catch (error) {
+        toast.error("Session expired. Please log in again.", error);
+        navigate("/login"); // Redirect to login if not authenticated
+      }
+    };
 
-  fetchUserData();
-}, [userId, navigate]);
+    fetchUserData();
+  }, [userId, navigate]);
 
   return (
     <div
@@ -166,7 +169,20 @@ const Edituser = () => {
               {
                 icon: Bell,
                 label: "Notifications",
-                onClick: () => setNotifications(!notifications),
+                onClick: async () => {
+                  const newState = !notifications;
+                  setNotifications(newState);
+                  try {
+                    const data = await toggleNotificationsAPI(userId, newState);
+                    console.log(data);
+                    toast.success("Notifications updated successfully!");
+                  } catch (error) {
+                    toast.error(
+                      error.response?.data?.message || "Something went wrong"
+                    );
+                  }
+                },
+
                 toggle: true,
                 toggleState: notifications,
               },

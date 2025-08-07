@@ -135,21 +135,6 @@ function BottomNavbar({ isDarkMode, toggleDarkMode, isAdmin, activeTab, userId }
             <span className="text-xs">Profile</span>
           </button>
 
-          <button
-            className={`flex flex-col items-center ${commonTextColor}`}
-            onClick={toggleDarkMode}
-          >
-            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-            <span className="text-xs">Theme</span>
-          </button>
-
-          <button
-            className={`flex flex-col items-center ${commonTextColor}`}
-            onClick={handleLogout}
-          >
-            <LogOut size={20} />
-            <span className="text-xs">Logout</span>
-          </button>
         </>
       )}
     </nav>

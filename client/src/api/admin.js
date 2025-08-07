@@ -32,6 +32,18 @@ export const createArticle = (data) => {
 
 export const getArticleById = (id) => API.get(`admin/articles/${id}`);
 
-export const updateArticle = (id, data) => API.put(`admin/articles/${id}`, data);
+export const updateArticle = (id, data) => {
+  const formData = new FormData();
+
+  for (let key in data) {
+    if (data[key] !== undefined && data[key] !== null) {
+      formData.append(key, data[key]);
+  }
+    
+  }
+
+  return API.put(`/admin/articles/${id}`, formData);
+};
+
 
 export default API;

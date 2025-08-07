@@ -8,6 +8,7 @@ import { loginUser, getUserProfile } from "../../api/auth";
 import { AuthContext } from "../../context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
 import { baseURL } from "../../api/axios";
+import Loader from "../../components/Loader";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -32,8 +33,7 @@ function Login() {
       toast.success(data?.message || "Login successful!");
       setIsSuccess(true); // ✅ Trigger navigation in useEffect
     } catch (err) {
-      console.error(err);
-      toast.error(err?.data?.message || "Something went wrong!");
+      toast.error(err?.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -139,7 +139,7 @@ function Login() {
               type="submit"
               className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Login
+              {loading ? <Loader/> : "Login"}
             </button>
           </form>
           <div className="flex items-center justify-center mt-4">
@@ -232,9 +232,10 @@ function Login() {
 
               <button
                 type="submit"
+                disabled={loading}
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Login
+                {loading ? "Logging in..." : "Login"}
               </button>
             </form>
             <div className="flex items-center justify-center mt-4">
